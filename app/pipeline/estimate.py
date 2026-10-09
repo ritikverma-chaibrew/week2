@@ -4,7 +4,7 @@ KINDS = ("story", "poem", "comic")
 PARTS = {"story": 6, "poem": 4, "comic": 6}  # scenes / stanzas / panels, one small call each
 REVISIONS = {"story": 3, "poem": 2, "comic": 0}  # at most this many weak parts get rewritten after the review
 NON_LLM = {"illustrate", "finalize"}  # steps that make no model call
-VISION_PARALLEL = 4  # photos are looked at this many at a time
+VISION_PARALLEL = 1  # photos looked at at once: 1 = one LLM call at a time (raise to run photos in parallel)
 SECONDS = {
     "vision": 8,
     "outline": 18,

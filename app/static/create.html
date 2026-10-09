@@ -18,7 +18,7 @@
 <main class="wrap">
   <div class="pagehead">
     <h1>Create your tale</h1>
-    <p class="lead">Follow the steps below. Your photos become an illustrated story, poem or comic in about 2 to 3 minutes.</p>
+    <p class="lead">Follow the steps below. Your photos become an illustrated story, poem or comic in about 2 to 4 minutes.</p>
   </div>
 
   <!-- 1. AI connection: folded away once it's ready -->
@@ -102,6 +102,12 @@
       <div class="llm"><span>⏳ Time left</span><span id="llm-eta"></span></div>
       <div class="muted" id="llm-wait"></div>
       <div class="bar"><i></i></div>
+      <div class="activity" id="activity" hidden aria-live="polite">
+        <p class="eyebrow" id="act-title">🔎 Checking your photos</p>
+        <p class="act-line" id="act-upload"></p>
+        <div class="act-photos" id="act-photos"></div>
+        <div class="act-summary" id="act-summary" hidden></div>
+      </div>
       <div class="peek" id="peek" hidden aria-live="polite">
         <p class="eyebrow">✨ Sneak peek: written so far</p>
         <h3 id="peek-title"></h3>

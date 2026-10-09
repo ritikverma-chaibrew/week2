@@ -3,7 +3,7 @@
 Go outside, photograph 5 to 10 random things, and Gemma AI turns them into a children's **story**, a rhyming **poem** or a **comic strip** (funny, spooky or mystery), illustrated with your own photos. Everything is written in simple words: short sentences, no idioms, about CEFR A2, so young readers and beginner English learners can follow it.
 
 ## Using the site
-1. **Connect the AI once.** Paste a free [Google AI Studio](https://aistudio.google.com/apikey) key, or run Gemma locally with [LM Studio](https://lmstudio.ai). `/setup.html` walks through both.
+1. **Connect the AI once.** Paste a free [Google AI Studio](https://aistudio.google.com/api-keys) key, or run Gemma locally with [LM Studio](https://lmstudio.ai). `/setup.html` walks through both.
 2. **Go for a walk.** The Create page gives you a random photo mission (optional).
 3. **Add 5 to 10 photos.**
 4. **Pick a mood** (Funny, Spooky, Mystery) **and a format** (Story, Poem, Comic).

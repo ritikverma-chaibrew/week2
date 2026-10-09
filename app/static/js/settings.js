@@ -5,7 +5,7 @@ import {
 } from "./keystore.js";
 
 const KEYED = {
-  aistudio: { label: "Google AI Studio API key", link: "https://aistudio.google.com/apikey", hint: "AIza…" },
+  aistudio: { label: "Google AI Studio API key", link: "https://aistudio.google.com/api-keys", hint: "AIza…" },
 };
 const INTRO = {
   aistudio: `Use your own free Google AI Studio key with Gemma 4. Works in any browser, nothing to install. The key is kept in your browser's local storage for ${TTL_LABEL} only.`,

@@ -312,3 +312,15 @@ details.more > summary { cursor: pointer; font-weight: 700; padding: 6px 0; }
 .gal h2 { grid-column: 1 / -1; margin: 12px 0 0; font-size: 1.15rem; }
 dialog .row.top { margin: 0 44px 10px 0; }
 .publish.done .warn { display: none; }
+
+/* sneak peek: parts appear while the rest is still being written */
+.peek { margin: 4px 0 16px; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--line); background: var(--bg2); max-height: 420px; overflow-y: auto; }
+.peek .eyebrow { margin: 0; }
+.peek h3 { margin: 4px 0 6px; }
+.peek h3:empty { display: none; }
+.peek-part p { margin: .6em 0; }
+.peek-part .verse { white-space: pre-line; text-align: center; }
+.peek-part .pcap { color: #111; margin: 10px 0 6px; }
+.peek-part .bubble { color: #111; margin: 6px 0 0 10px; }
+.peek-part.fresh { animation: fadein .6s ease; }
+@keyframes fadein { from { opacity: 0; transform: translateY(6px); } }

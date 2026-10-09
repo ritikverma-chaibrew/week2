@@ -195,6 +195,41 @@ function startCooldown() {
   renderRetry();
 }
 
+/** Sneak peek: show each scene, verse or panel as soon as it is written (the server sends the parts done so far). */
+let peekShown = -1;
+function renderPeek(st) {
+  const pv = st.preview;
+  const n = pv?.parts?.length ?? -1;
+  $("peek").hidden = !pv || (!n && !pv.title) || st.status === "done";
+  if (!pv || n === peekShown) return; // nothing new: keep what the reader is looking at
+  peekShown = n;
+  $("peek-title").textContent = pv.title || "";
+  const kind = st.kind || "story";
+  $("peek-parts").replaceChildren(
+    ...pv.parts.map((p, i) => {
+      const box = document.createElement("div");
+      box.className = "peek-part" + (i === n - 1 ? " fresh" : "");
+      if (kind === "comic") {
+        const cap = document.createElement("div");
+        cap.className = "pcap";
+        cap.textContent = `Panel ${i + 1}${p.caption ? ": " + p.caption : ""}`;
+        box.append(cap);
+        (p.speech || []).forEach((s) => {
+          const b = document.createElement("div");
+          b.className = "bubble";
+          if (s.who) b.append(Object.assign(document.createElement("b"), { textContent: s.who }));
+          b.append(document.createTextNode(s.text));
+          box.append(b);
+        });
+      } else {
+        box.append(Object.assign(document.createElement("p"), { className: kind === "poem" ? "verse" : "", textContent: p.text || "" }));
+      }
+      return box;
+    })
+  );
+  $("peek").scrollTop = $("peek").scrollHeight; // keep the newest part in view
+}
+
 function busy(on) {
   running = on;
   renderMake();
@@ -206,6 +241,7 @@ function watch(id) {
   es.onmessage = (ev) => {
     const st = JSON.parse(ev.data);
     renderProgress($("progress"), st);
+    renderPeek(st);
     renderRetry(st);
     if (st.status === "failed" || st.status === "done") recordUsage(st);
     if (st.status === "failed") {
@@ -235,6 +271,8 @@ $("go").onclick = async () => {
   endCooldown();
   lastState = null;
   renderRetry();
+  peekShown = -1;
+  $("peek").hidden = true;
   busy(true);
   try {
     $("progress-card").hidden = false;

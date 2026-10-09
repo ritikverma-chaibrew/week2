@@ -42,7 +42,7 @@ export function renderProgress(root, state) {
       const li = document.createElement("li");
       li.className = "s-" + s.status;
       const meta =
-        s.status === "retrying" ? `retrying in ~${s.attempts * (state.llm?.gap || 5)}s (attempt ${s.attempts}/4): ${s.error || ""}`
+        s.status === "retrying" ? `retrying in ~${state.llm?.waiting || s.attempts * 30}s (attempt ${s.attempts}/4): ${s.error || ""}`
         : s.status === "failed" ? s.error || "failed"
         : s.status === "skipped" ? "skipped, story kept as written"
         : s.status === "done" && s.ms ? (s.ms / 1000).toFixed(1) + "s"

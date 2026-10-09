@@ -49,8 +49,9 @@ class ProviderConfig:
 
     @property
     def retry_delay(self) -> int:
-        """Seconds to wait before retrying a failed step."""
-        return self.call_gap or 5
+        """Base wait before retrying a failed call; the runner multiplies it by the attempt number (1x, 2x, 3x).
+        Google AI Studio doesn't say how long to wait after a rate limit, so it gets a fixed 30 s base."""
+        return settings.llm_retry_seconds if self.kind == "aistudio" else 5
 
     @property
     def speed(self) -> float:

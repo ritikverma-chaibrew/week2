@@ -27,7 +27,6 @@ MAX_PARTS = max(PARTS.values())
 MAX_REVISIONS = max(REVISIONS.values())
 # if these still fail after all retries, the output continues without them
 OPTIONAL = {"critique"} | {f"revise_{k + 1}" for k in range(MAX_REVISIONS)}
-_gate = asyncio.Semaphore(1)  # one call at a time: AI Studio free-tier limits are low
 
 
 def scene_count(n_photos: int) -> int:
@@ -85,8 +84,7 @@ def parse_json(text: str) -> dict:
 
 async def _gen(provider, cfg, kind: str, prompt: str, images=None) -> str:
     temp, top_p, max_tokens = PARAMS[kind]
-    async with _gate:
-        return await provider.generate(prompt, images or [], cfg.model(ROLE[kind]), temp, top_p, max_tokens)
+    return await provider.generate(prompt, images or [], cfg.model(ROLE[kind]), temp, top_p, max_tokens)
 
 
 async def _image(image_id: str, field: str) -> bytes:

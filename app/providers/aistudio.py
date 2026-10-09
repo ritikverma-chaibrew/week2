@@ -60,7 +60,7 @@ class AIStudio(GemmaProvider):
             for b in images
         ]
         config = {"temperature": temperature, "topP": top_p, "maxOutputTokens": max_tokens + self.headroom}
-        if self.no_thinking:
+        if self.no_thinking: 
             # Gemma 4 "thinks" by default and hidden reasoning eats the output budget (finish reason MAX_TOKENS,
             # empty answer). "minimal" turns it off; our tasks (JSON, prose) don't need it.
             config["thinkingConfig"] = {"thinkingLevel": "minimal"}

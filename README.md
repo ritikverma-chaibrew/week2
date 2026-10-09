@@ -49,6 +49,18 @@ uvicorn app.main:app --reload
 ```
 Open http://localhost:8000. For MongoDB Atlas, set `MONGODB_URI=mongodb+srv://...` in `.env`.
 
+## Deploy on Render
+`render.yaml` describes the web service. If you created the service by hand in the dashboard, set these in **Settings**:
+
+| Setting | Value |
+| --- | --- |
+| Build Command | `pip install -r requirements.txt` |
+| Start Command | `uvicorn app.main:app --host 0.0.0.0 --port $PORT` |
+| Health Check Path | `/api/health` |
+| Environment | `MONGODB_URI` = your MongoDB Atlas string (Render has no local MongoDB) |
+
+The `--host 0.0.0.0 --port $PORT` part is required: without it uvicorn listens on `127.0.0.1:8000` and the deploy fails with *"Port scan timeout reached, no open ports detected on 0.0.0.0"*. In Atlas, allow connections from Render (Network Access → `0.0.0.0/0`, or Render's outbound IPs). `/api/health` reports `"db": true` once the database is reachable.
+
 | `.env` setting | Default | What it does |
 | --- | --- | --- |
 | `MONGODB_URI` | `mongodb://localhost:27017` | Database connection |

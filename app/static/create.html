@@ -3,23 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Create a story · Touch Grass Tales</title>
+<title>Make a tale · Touch Grass Tales</title>
 <meta name="description" content="Turn 5 to 10 photos from your walk into an illustrated story, poem or comic.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🌱%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🌳%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 <header class="nav"><div class="wrap">
-  <a class="logo" href="index.html">🌱 Touch Grass Tales</a>
+  <a class="logo" href="index.html">🌳 Touch Grass Tales</a>
   <nav class="links" aria-label="Main">
-    <a class="l" href="index.html#how">How it works</a><a class="l" href="demo.html">Demo</a><a class="l" href="gallery.html">Gallery</a><a class="l" href="setup.html">Setup</a>
+    <a class="btn sm cta" href="create.html" aria-current="page">Make a tale</a><a class="l" href="index.html#how">How it works</a><a class="l" href="gallery.html">Gallery</a><a class="l" href="setup.html">Setup</a>
   </nav>
-  <a class="btn sm cta" href="create.html" aria-current="page">Create</a>
 </div></header>
 <main class="wrap">
   <div class="pagehead">
     <h1>Create your tale</h1>
-    <p class="lead">Follow the steps below. Your photos become an illustrated story, poem or comic in about 6 to 10 minutes.</p>
+    <p class="lead">Follow the steps below. Your photos become an illustrated story, poem or comic in about 2 to 3 minutes.</p>
   </div>
 
   <!-- 1. AI connection: folded away once it's ready -->
@@ -96,13 +95,19 @@
 
   <section class="card" id="progress-card" hidden>
     <h2>✍️ Making your tale…</h2>
-    <p class="tip">Keep this tab open. You can do something else meanwhile: your tale will appear right here when it is ready.</p>
+    <p class="tip">Keep this tab open. Each part appears below as soon as it is written, and the finished tale shows up right here.</p>
     <div id="progress">
       <!-- AI-call counter hidden from the UI (code kept in js/progress.js, commented out):
       <span><b id="llm-calls">0</b> AI calls made (up to <b id="llm-planned">…</b>)</span> -->
       <div class="llm"><span>⏳ Time left</span><span id="llm-eta"></span></div>
       <div class="muted" id="llm-wait"></div>
-      <div class="bar"><i></i></div><ul class="steps"></ul></div>
+      <div class="bar"><i></i></div>
+      <div class="peek" id="peek" hidden aria-live="polite">
+        <p class="eyebrow">✨ Sneak peek: written so far</p>
+        <h3 id="peek-title"></h3>
+        <div id="peek-parts"></div>
+      </div>
+      <ul class="steps"></ul></div>
     <p><button class="btn sm" id="retry" type="button" hidden>↻ Retry from the failed step</button></p></section>
 
   <section class="card" id="result-card" hidden>
@@ -126,7 +131,7 @@
   </section>
 </main>
 <footer><div class="wrap">
-  <span>🌱 Touch Grass Tales</span><span>Your API key stays in this browser for 5 hours and is never stored on the server.</span>
+  <span>🌳 Touch Grass Tales</span><span>Your API key is kept in your browser's local storage for 5 hours only and is never stored on the server.</span>
 </div></footer>
 <script type="module" src="js/app.js"></script>
 </body>

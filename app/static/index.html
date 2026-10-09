@@ -5,16 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Touch Grass Tales</title>
 <meta name="description" content="Go outside, snap 5 to 10 photos, and Gemma AI turns them into an illustrated children's story, poem or comic.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🌱%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🌳%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 <header class="nav"><div class="wrap">
-  <a class="logo" href="index.html">🌱 Touch Grass Tales</a>
+  <a class="logo" href="index.html">🌳 Touch Grass Tales</a>
   <nav class="links" aria-label="Main">
-    <a class="l" href="#how">How it works</a><a class="l" href="demo.html">Demo</a><a class="l" href="gallery.html">Gallery</a><a class="l" href="setup.html">Setup</a>
+    <a class="btn sm cta" href="create.html">Make a tale</a><a class="l" href="#how">How it works</a><a class="l" href="gallery.html">Gallery</a><a class="l" href="setup.html">Setup</a>
   </nav>
-  <a class="btn sm cta" href="create.html">Create</a>
 </div></header>
 <main class="wrap">
   <section class="hero2">
@@ -51,7 +50,7 @@
 
   <section class="section" id="how">
     <span class="eyebrow">How it works</span>
-    <h2>Four steps, about 10 minutes</h2>
+    <h2>Four steps, a few minutes</h2>
     <ol class="howsteps">
       <li><b>Connect the AI once</b><p>Paste a free Google AI Studio key (2 minutes), or use LM Studio on your computer. <a href="setup.html">How?</a></p></li>
       <li><b>Go outside</b><p>Get a fun mission, like "find something that looks like a face", and take 5 to 10 photos.</p></li>
@@ -78,7 +77,7 @@
     <ul class="need">
       <li><span>📱</span><span><b>A phone or computer</b> <span class="muted">to take or upload photos.</span></span></li>
       <li><span>🔑</span><span><b>A free Google AI Studio key</b> <span class="muted">or the LM Studio app on your computer. The <a href="setup.html">setup guide</a> shows you how.</span></span></li>
-      <li><span>⏳</span><span><b>About 6 to 10 minutes</b> <span class="muted">while the AI writes. Keep the tab open; you can do other things.</span></span></li>
+      <li><span>⏳</span><span><b>About 2 to 3 minutes</b> <span class="muted">while the AI writes. Keep the tab open; you can do other things.</span></span></li>
     </ul>
   </section>
 
@@ -86,9 +85,9 @@
     <h2>Questions</h2>
     <div class="card faq">
       <details open><summary>Is it free?</summary><p>Yes. Google AI Studio gives you a free key with Gemma models. You can also use LM Studio, which runs fully on your own computer.</p></details>
-      <details open><summary>Is my API key safe?</summary><p>Your key stays in your browser for 5 hours and is then deleted automatically. It is sent with each request but the server never stores or logs it. You can press <b>Forget</b> at any time.</p></details>
+      <details open><summary>Is my API key safe?</summary><p>Your key is kept in your browser's local storage for 5 hours only and is then deleted automatically. It is sent with each request but the server never stores or logs it. You can press <b>Forget</b> at any time.</p></details>
       <details open><summary>What happens to my photos?</summary><p>Photos are shrunk, their hidden location data (EXIF) is removed, and they are deleted from the server after 24 hours. When you press <b>Publish</b>, your tale and small copies of its photos are saved to your browser's local storage, so you can find it again in the gallery on this device. It is never uploaded for others to see.</p></details>
-      <details open><summary>Why does it take a few minutes?</summary><p>The AI works in small, careful steps: it looks at each photo, plans the plot, writes each part, then proofreads. Free keys have rate limits, so there is a short pause between steps.</p></details>
+      <details open><summary>Why does it take a few minutes?</summary><p>The AI works in small, careful steps: it looks at each photo, plans the plot, writes each part, then proofreads. Doing it carefully, one piece at a time, takes a few minutes.</p></details>
       <details open><summary>Can I try it without a key?</summary><p>Yes. The <a href="demo.html">demo</a> shows a pre-made walk with no setup, and the <a href="gallery.html">gallery</a> has sample tales.</p></details>
     </div>
   </section>
@@ -100,7 +99,7 @@
   </section>
 </main>
 <footer><div class="wrap">
-  <span>🌱 Touch Grass Tales</span><a href="setup.html">Setup</a><a href="demo.html">Demo</a><a href="gallery.html">Gallery</a><span>Built for Hacktoberfest · Gemma + FastAPI + MongoDB</span>
+  <span>🌳 Touch Grass Tales</span><a href="setup.html">Setup</a><a href="gallery.html">Gallery</a><span>Built for Hacktoberfest · Gemma + FastAPI + MongoDB</span>
 </div></footer>
 </body>
 </html>

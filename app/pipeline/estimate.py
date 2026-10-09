@@ -4,6 +4,7 @@ KINDS = ("story", "poem", "comic")
 PARTS = {"story": 6, "poem": 4, "comic": 6}  # scenes / stanzas / panels, one small call each
 REVISIONS = {"story": 3, "poem": 2, "comic": 0}  # at most this many weak parts get rewritten after the review
 NON_LLM = {"illustrate", "finalize"}  # steps that make no model call
+VISION_PARALLEL = 4  # photos are looked at this many at a time
 SECONDS = {
     "vision": 8,
     "outline": 18,
@@ -28,8 +29,16 @@ def _secs(name: str, kind: str) -> int:
 
 
 def total_seconds(names: list[str], gap: int, factor: float = 1.0, kind: str = "story") -> int:
-    """Calls start at least `gap` seconds apart (start to start), so a slow call absorbs the pause."""
-    ts = [_secs(n, kind) * factor for n in names]
+    """Calls start at least `gap` seconds apart (start to start), so a slow call absorbs the pause.
+    Photo calls run VISION_PARALLEL at a time, so each batch of photos costs as long as one call."""
+    ts, photos = [], 0
+    for n in names:
+        if n.startswith("vision_"):
+            if photos % VISION_PARALLEL == 0:
+                ts.append(_secs(n, kind) * factor)
+            photos += 1
+        else:
+            ts.append(_secs(n, kind) * factor)
     return round(sum(max(t, gap) for t in ts[:-1]) + ts[-1]) if ts else 0
 
 

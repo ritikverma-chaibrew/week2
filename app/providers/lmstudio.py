@@ -57,7 +57,7 @@ class LMStudio(GemmaProvider):
             msg = r.text[:200]
             if r.status_code in (400, 404):
                 low = msg.lower()
-                if "image" in low or "vision" in low:
+                if "image" in low or "vision" in low: 
                     raise ProviderError(
                         "no_vision",
                         f"'{model}' can't read images. Pick a vision-capable Gemma for the photo step.",

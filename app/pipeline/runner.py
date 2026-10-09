@@ -43,18 +43,24 @@ def llm_state(doc: dict) -> dict:
 
 
 def preview(doc: dict) -> dict | None:
-    """The title and the parts written so far (scenes, stanzas or panels), so the page can show them while the
-    rest is still being written. Gone once the tale is done: the finished result replaces it."""
+    """What has been worked out so far, so the page can show progress while the rest is still running: the items
+    found in each photo (None until that photo is checked), the title, and the parts written (scenes, stanzas or
+    panels). Gone once the tale is done: the finished result replaces it."""
     if doc.get("status") == "done":
         return None
     out = {s["name"]: s.get("output") or {} for s in doc["steps"] if s["status"] == "done"}
+    n_photos = sum(1 for s in doc["steps"] if s["name"].startswith("vision_"))
+    found = [
+        [str(o)[:40] for o in out[f"vision_{i + 1}"].get("objects", [])][:6] if f"vision_{i + 1}" in out else None
+        for i in range(n_photos)
+    ]
     parts = [
         {k: o[k] for k in ("text", "caption", "speech") if k in o}
         for name, o in out.items()
         if name.startswith("part_")
     ]
     title = (out.get("outline") or {}).get("title", "")
-    return {"title": str(title)[:120], "parts": parts} if parts or title else None
+    return {"found": found, "title": str(title)[:120], "parts": parts}
 
 
 def public(doc: dict) -> dict:
@@ -127,8 +133,8 @@ async def _run_step(step, ctx, doc, provider, cfg, funcs, save, sleep) -> bool:
 
 
 async def execute(doc, provider, cfg, funcs, save, sleep=asyncio.sleep) -> None:
-    """Run pending steps in order. Done steps are skipped, so a retry resumes where it failed.
-    Photos don't depend on each other, so they are looked at VISION_PARALLEL at a time."""
+    """Run pending steps in order, one LLM call at a time. Done steps are skipped, so a retry resumes where it
+    failed. Photos don't depend on each other, so VISION_PARALLEL > 1 would look at several at once."""
     ctx = {s["name"]: s["output"] for s in doc["steps"] if s["status"] == "done"}
     doc["status"], doc["error"] = "running", None
     await save(doc)

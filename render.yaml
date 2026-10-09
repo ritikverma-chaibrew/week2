@@ -1,0 +1,18 @@
+# Render Blueprint: https://render.com/docs/blueprint-spec
+# Render only reaches apps listening on 0.0.0.0 at $PORT, so uvicorn must not use its default (127.0.0.1:8000).
+services:
+  - type: web
+    name: touch-grass-tales
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: MONGODB_URI # your MongoDB Atlas connection string (mongodb+srv://...); set it in the Render dashboard
+        sync: false
+      - key: MONGODB_DB
+        value: touchgrass
+      - key: LLM_CALL_GAP_SECONDS
+        value: "0"
+      - key: LLM_RETRY_SECONDS
+        value: "30"

@@ -188,9 +188,9 @@ def test_estimates():
 
     story = llm_step_names(5, "story")
     assert len(story) == 5 + 1 + 6 + 1 + 3 and story[5] == "outline" and story[-4] == "critique"
-    # 5 photos are looked at 4 at a time: 2 batches, each as long as one call
-    assert total_seconds(story, 30) == (2 + 1 + 6 + 1 + 3 - 1) * 30 + 12  # every call is shorter than the pause
-    assert total_seconds(story, 0) == 8 * 2 + 18 + 12 * 6 + 14 + 12 * 3
+    # one LLM call at a time: each of the 5 photos is its own call
+    assert total_seconds(story, 30) == (len(story) - 1) * 30 + 12  # every call is shorter than the pause
+    assert total_seconds(story, 0) == 8 * 5 + 18 + 12 * 6 + 14 + 12 * 3
     assert len(llm_step_names(5, "poem")) == 5 + 1 + 4 + 1 + 2
     comic = llm_step_names(5, "comic")
     assert len(comic) == 5 + 1 + 6 and "critique" not in comic
@@ -449,7 +449,7 @@ def test_only_ai_studio_and_lm_studio_are_offered():
     assert get_cfg("openrouter", "", "", "", "").kind == "aistudio"  # unknown providers fall back to AI Studio
 
 
-def test_photos_are_looked_at_in_parallel_and_other_steps_in_order():
+def test_one_llm_call_at_a_time_in_order():
     from app.pipeline.estimate import VISION_PARALLEL
 
     live, peak, order = [0], [0], []
@@ -472,7 +472,7 @@ def test_photos_are_looked_at_in_parallel_and_other_steps_in_order():
     funcs = {s["name"]: build(s["name"]) for s in doc["steps"]}
     t0 = time.monotonic()
     asyncio.run(execute(doc, None, None, funcs, save))
-    assert doc["status"] == "done" and peak[0] == VISION_PARALLEL  # 4 photos at once, never more
+    assert doc["status"] == "done" and peak[0] == VISION_PARALLEL == 1  # never two calls at once
     assert order.index("outline") > max(order.index(f"vision_{i}") for i in range(1, 7))  # plan waits for all photos
     assert order[order.index("outline"):][:3] == ["outline", "part_1", "part_2"]  # writing stays in order
 
@@ -482,12 +482,14 @@ def test_progress_shows_finished_parts_until_the_tale_is_done():
 
     doc = {"_id": "s", "genre": "funny", "kind": "story", "status": "running", "steps": new_steps(5, "story")}
     steps = {s["name"]: s for s in doc["steps"]}
-    assert public(doc)["preview"] is None  # nothing written yet
+    assert public(doc)["preview"] == {"found": [None] * 5, "title": "", "parts": []}  # nothing checked yet
+    steps["vision_1"].update(status="done", output={"objects": ["bench", "pigeon"]})
+    assert public(doc)["preview"]["found"] == [["bench", "pigeon"], None, None, None, None]
     steps["outline"].update(status="done", output={"title": "Gus and the Big Bench", "beats": ["a"]})
     steps["part_1"].update(status="done", output={"text": "Gus had a plan."})
     steps["part_2"].update(status="running")
     snap = public(doc)["preview"]
-    assert snap == {"title": "Gus and the Big Bench", "parts": [{"text": "Gus had a plan."}]}
+    assert snap["title"] == "Gus and the Big Bench" and snap["parts"] == [{"text": "Gus had a plan."}]
     doc["status"] = "done"
     assert public(doc)["preview"] is None  # the finished result replaces the preview
 

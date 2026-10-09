@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create a story · Touch Grass Tales</title>
+<meta name="description" content="Turn 5 to 10 photos from your walk into an illustrated story, poem or comic.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🌳%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="logo" href="index.html">🌳 Touch Grass Tales</a>
+  <nav class="links" aria-label="Main">
+    <a class="btn sm cta" href="create.html" aria-current="page">Create a story</a><a class="l" href="index.html#how">How it works</a><a class="l" href="gallery.html">Gallery</a><a class="l" href="setup.html">Setup</a>
+  </nav>
+</div></header>
+<main class="wrap">
+  <div class="pagehead">
+    <h1>Create your tale</h1>
+    <p class="lead">Follow the steps below. Your photos become an illustrated story, poem or comic in about 6 to 10 minutes.</p>
+  </div>
+
+  <!-- 1. AI connection: folded away once it's ready -->
+  <section class="card step" id="step-ai">
+    <details class="stepbox" id="ai-box" open>
+      <summary><span class="num">1</span>
+        <span class="st-title"><b>Connect the AI</b><span class="muted" id="ai-summary">Checking…</span></span>
+        <span class="chev" aria-hidden="true"></span></summary>
+      <div class="body">
+        <p class="tip" style="margin-top:0">One-time setup. The free <b>Google AI Studio</b> key takes about 2 minutes:
+          <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">get a key</a>, paste it below, press <b>Save key</b>, then <b>Connect</b>.
+          Need help? Read the <a href="setup.html">setup guide</a>.</p>
+        <div id="settings"></div>
+      </div>
+    </details>
+  </section>
+
+  <!-- 2. Mission -->
+  <section class="card step done" id="step-walk">
+    <div class="head"><span class="num">2</span>
+      <span class="st-title"><b>Go for a walk</b><span class="muted">Optional, but more fun. Here is a mission to get you started:</span></span></div>
+    <div class="body">
+      <p class="mission" id="mission" aria-live="polite"></p>
+      <button class="btn sm ghost" id="shuffle" type="button">🎲 Give me another mission</button>
+    </div>
+  </section>
+
+  <!-- 3. Photos -->
+  <section class="card step" id="step-photos">
+    <div class="head"><span class="num">3</span>
+      <span class="st-title"><b>Add your photos</b><span class="muted">Pick 5 to 10 photos of things you saw. Anything works: a bench, a bird, a funny sign.</span></span></div>
+    <div class="body">
+      <div class="drop" id="drop" tabindex="0" role="button" aria-label="Add photos: take or choose 5 to 10 pictures">
+        <span class="big" aria-hidden="true">📸</span>
+        <b>Tap to take or choose photos</b><br><span class="muted">or drag and drop them here</span></div>
+      <input id="file" type="file" accept="image/*" capture="environment" multiple hidden>
+      <div class="meter" id="meter" aria-hidden="true"><i></i></div>
+      <p class="muted photohint" id="count" aria-live="polite">0 of 10 photos. Add at least 5.</p>
+      <div class="thumbs" id="thumbs"></div>
+    </div>
+  </section>
+
+  <!-- 4. Mood + format -->
+  <section class="card step done" id="step-style">
+    <div class="head"><span class="num">4</span>
+      <span class="st-title"><b>Choose a mood and a format</b><span class="muted">Same photos, very different result. You can try them all.</span></span></div>
+    <div class="body">
+      <p class="choicelabel" id="mood-l">Mood</p>
+      <div class="genres" role="group" aria-labelledby="mood-l">
+        <button class="genre on" data-g="funny" type="button" aria-pressed="true"><b>😂 Funny</b><span class="muted">Silly and surprising</span></button>
+        <button class="genre" data-g="horror" type="button" aria-pressed="false"><b>👻 Spooky</b><span class="muted">A little creepy, never gory</span></button>
+        <button class="genre" data-g="suspense" type="button" aria-pressed="false"><b>🕵️ Mystery</b><span class="muted">A puzzle with a twist</span></button>
+      </div>
+      <p class="choicelabel" id="kind-l">Format</p>
+      <div class="genres" role="group" aria-labelledby="kind-l">
+        <button class="genre on" data-k="story" type="button" aria-pressed="true"><b>📖 Story</b><span class="muted">6 short scenes, one photo each</span></button>
+        <button class="genre" data-k="poem" type="button" aria-pressed="false"><b>📝 Poem</b><span class="muted">4 rhyming verses</span></button>
+        <button class="genre" data-k="comic" type="button" aria-pressed="false"><b>💬 Comic</b><span class="muted">6 panels with speech bubbles</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Make -->
+  <section class="card step" id="step-make">
+    <div class="head"><span class="num">5</span>
+      <span class="st-title"><b>Make it</b><span class="muted">The AI looks at each photo, plans a plot, writes and then proofreads.</span></span></div>
+    <div class="body makebox">
+      <button class="btn lg" id="go" type="button" disabled>Make my story ✨</button>
+      <ul class="todo" id="todo" aria-live="polite"></ul>
+      <p class="muted" id="estimate"></p>
+      <div id="error" class="status" role="alert"></div>
+    </div>
+  </section>
+
+  <section class="card" id="progress-card" hidden>
+    <h2>✍️ Making your tale…</h2>
+    <p class="tip">Keep this tab open. You can do something else meanwhile: your tale will appear right here when it is ready.</p>
+    <div id="progress">
+      <!-- AI-call counter hidden from the UI (code kept in js/progress.js, commented out):
+      <span><b id="llm-calls">0</b> AI calls made (up to <b id="llm-planned">…</b>)</span> -->
+      <div class="llm"><span>⏳ Time left</span><span id="llm-eta"></span></div>
+      <div class="muted" id="llm-wait"></div>
+      <div class="bar"><i></i></div><ul class="steps"></ul></div>
+    <p><button class="btn sm" id="retry" type="button" hidden>↻ Retry from the failed step</button></p></section>
+
+  <section class="card" id="result-card" hidden>
+    <div id="result"></div>
+    <div class="publish" id="publish-box">
+      <h3>📚 Publish to your gallery?</h3>
+      <p class="warn" id="publish-note"><b>A published tale is saved to your browser's local storage</b>, together with small copies
+        of your photos. It then appears in the <a href="gallery.html">gallery</a> on this device and browser. It is not uploaded,
+        so other people can't see it, and clearing your browser data deletes it.</p>
+      <div class="row"><button class="btn" id="publish" type="button">📚 Publish my tale</button>
+        <span class="muted" id="private-note">If you don't publish it, the tale is gone when you leave this page.</span></div>
+      <div class="status" id="publish-msg" role="status"></div>
+    </div>
+    <div class="after">
+      <p style="margin-top:0"><b>Enjoyed it?</b> <span class="muted">Try another mood or format with the same photos.</span></p>
+      <div class="row">
+        <a class="btn ghost" href="#step-style">🎭 Try another mood or format</a>
+        <a class="btn ghost" href="gallery.html">See the gallery</a>
+      </div>
+    </div>
+  </section>
+</main>
+<footer><div class="wrap">
+  <span>🌳 Touch Grass Tales</span><span>Your API key is kept in your browser's local storage for 5 hours only and is never stored on the server.</span>
+</div></footer>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

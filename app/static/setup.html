@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Setup · Touch Grass Tales</title>
+<meta name="description" content="Connect Touch Grass Tales to Gemma with a free Google AI Studio key or LM Studio.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🌳%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="logo" href="index.html">🌳 Touch Grass Tales</a>
+  <nav class="links" aria-label="Main">
+    <a class="btn sm cta" href="create.html">Create a story</a><a class="l" href="index.html#how">How it works</a><a class="l" href="gallery.html">Gallery</a><a class="l" href="setup.html" aria-current="page">Setup</a>
+  </nav>
+</div></header>
+<main class="wrap">
+  <div class="pagehead">
+    <h1>Connect the AI</h1>
+    <p class="lead">Touch Grass Tales uses Google's <b>Gemma</b> AI to write. You set it up once, in about 2 minutes. Pick one option:</p>
+  </div>
+
+  <div class="pick">
+    <a class="card" href="#aistudio">
+      <h3>☁️ Google AI Studio</h3>
+      <p class="muted">Free key from Google. Works on any phone or computer.</p>
+      <ul><li>Nothing to install</li><li>Key kept in your browser's local storage for 5 hours</li><li>About 6 to 10 minutes per tale</li></ul>
+    </a>
+    <a class="card" href="#lmstudio">
+      <span class="tag alt">For tinkerers</span>
+      <h3>💻 LM Studio</h3>
+      <p class="muted">Runs Gemma on your own computer. No key, no limits.</p>
+      <ul><li>Needs the LM Studio app and a good PC</li><li>Works offline once models are downloaded</li><li>Speed depends on your computer</li></ul>
+    </a>
+  </div>
+
+  <section class="card" id="aistudio">
+    <h2>☁️ Google AI Studio</h2>
+    <ol class="guide">
+      <li>Open <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>, sign in with Google, and press <b>Create API key</b>. Copy the key (it starts with <code>AIza</code>).</li>
+      <li>In the <a href="#connect">Connect &amp; test</a> box below, choose <b>Google AI Studio</b>, paste the key and press <b>Save key</b>.</li>
+      <li>Press <b>Connect</b>. When you see <b>● Connected</b>, you're done. <a href="create.html">Create your first tale →</a></li>
+    </ol>
+    <details class="more" open><summary>Good to know</summary>
+      <p class="muted">Your key is kept in your browser's local storage for 5 hours, then deleted automatically. The server never stores it. If Google is busy, the app tries again automatically. A tale takes about 6 to 10 minutes. The AI never writes everything in one go: it looks at each photo, plans, writes one short part at a time and then proofreads, which keeps the writing focused.</p>
+      <!-- Number of AI calls hidden from the UI. Kept for reference:
+      <p class="muted">Each photo is one small AI call. Then a story adds one plot call, six short scene calls and a review with up to 3 fixes; a poem adds the plot, four stanza calls and a review with up to 2 fixes; a comic adds the plot and six panel calls. That is about 12 to 21 calls.</p>
+      -->
+    </details>
+  </section>
+
+  <section class="card" id="lmstudio">
+    <h2>💻 LM Studio (on your computer)</h2>
+    <ol class="guide">
+      <li>Install <a href="https://lmstudio.ai" target="_blank" rel="noopener">LM Studio</a>.</li>
+      <li>In <b>Discover</b>, download a <b>vision-capable Gemma</b> (Gemma 3 4B/12B/27B or a Gemma 4 build). A bigger model writes better stories.</li>
+      <li>Open the <b>Developer</b> tab, load your model and switch <b>Start Server</b> on (<code>http://localhost:1234</code>).</li>
+      <li>In the <a href="#connect">Connect &amp; test</a> box below, choose <b>LM Studio</b> and press <b>Test connection</b>.</li>
+    </ol>
+    <p class="muted">The Touch Grass Tales server must run on the same computer as LM Studio. Under <b>Advanced settings</b> you can pick which loaded Gemma model does each task.</p>
+  </section>
+
+  <section class="card hl" id="connect"><h2>🔌 Connect &amp; test</h2><div id="settings"></div></section>
+
+  <section class="card"><h2>Something not working?</h2>
+    <div class="faq">
+      <details open><summary>"rejected your API key"</summary><p>The key is wrong or expired. Create a new one at aistudio.google.com/apikey and paste it again.</p></details>
+      <details open><summary>"Key disconnected"</summary><p>Keys are removed from your browser's local storage after 5 hours for your safety. Paste your key again and press Connect.</p></details>
+      <details open><summary>Rate limit or daily limit</summary><p>Google's free tier has limits. Wait a minute and press Retry.</p></details>
+      <details open><summary>"LM Studio server not reachable"</summary><p>Start the server in LM Studio's Developer tab and check the URL (usually <code>http://localhost:1234/v1</code>).</p></details>
+      <details open><summary>"can't read images"</summary><p>The "Look at each photo" task needs a model with vision (image) support.</p></details>
+    </div>
+  </section>
+
+  <section class="card">
+    <details class="more" open><summary>Technical details: which model does what</summary>
+      <p class="muted">Each task uses a different model on purpose: the large dense model for writing and editing, and the fast mixture-of-experts model for looking at photos and planning.</p>
+      <div style="overflow-x:auto"><table class="cmp">
+        <tr><th>Task</th><th>Default (Google AI Studio)</th><th>Why</th></tr>
+        <tr><td>Look at each photo</td><td>Gemma 4 26B-A4B</td><td>Fast; one small (384px) photo at a time</td></tr>
+        <tr><td>Plan the story, poem or comic and pick the pictures</td><td>Gemma 4 26B-A4B</td><td>Fast, structured planning; chooses the photo for each moment</td></tr>
+        <tr><td>Write each scene or stanza, review, fix weak spots</td><td>Gemma 4 31B</td><td>Best prose and rhyme, in small pieces (about 170 words or 4 lines at a time)</td></tr>
+        <tr><td>Write comic panel words</td><td>Gemma 4 26B-A4B</td><td>Fast; a caption and up to 2 speech bubbles per panel</td></tr>
+      </table></div>
+    </details>
+  </section>
+
+  <section class="card">
+    <details class="more" open><summary>Hosting the app yourself (for developers)</summary>
+      <ol class="guide">
+        <li>Install Python 3.11+ and start MongoDB locally on port <code>27017</code>.</li>
+        <li><pre>pip install -r requirements.txt
+copy .env.example .env
+uvicorn app.main:app --reload</pre></li>
+        <li>Open <code>http://localhost:8000</code>.</li>
+      </ol>
+      <p class="muted">To use MongoDB Atlas, put your <code>mongodb+srv://…</code> string in <code>.env</code> as <code>MONGODB_URI</code> and restart.</p>
+    </details>
+  </section>
+</main>
+<footer><div class="wrap">
+  <span>🌳 Touch Grass Tales</span><span>Your API key is kept in your browser's local storage for 5 hours only and is never stored on the server.</span>
+</div></footer>
+<script type="module">
+  import { mountSettings } from "./js/settings.js";
+  mountSettings(document.getElementById("settings"));
+</script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demo · Touch Grass Tales</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🌳%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="logo" href="index.html">🌳 Touch Grass Tales</a>
+  <nav class="links" aria-label="Main">
+    <a class="btn sm cta" href="create.html">Create a story</a><a class="l" href="index.html#how">How it works</a><a class="l" href="gallery.html">Gallery</a><a class="l" href="setup.html">Setup</a>
+  </nav>
+</div></header>
+<main class="wrap">
+  <div class="pagehead">
+    <h1>See it in action</h1>
+    <p class="lead">This replays a pre-made walk so you can see what you get. No key, no photos, nothing is sent anywhere.</p>
+  </div>
+  <div class="card">
+    <p class="choicelabel" style="margin-top:0">1. The photos from this walk</p>
+    <div class="inputs" aria-label="Demo photos: a park bench, a lamp post and a pigeon">
+      <div class="pola"><i>🪑</i>park bench</div><div class="pola"><i>💡</i>lamp post</div><div class="pola"><i>🐦</i>pigeon</div>
+    </div>
+    <p class="choicelabel" id="mood-l">2. Pick a mood</p>
+    <div class="tabs genres" id="tabs" role="group" aria-labelledby="mood-l">
+      <button class="genre on" data-g="funny" type="button" aria-pressed="true"><b>😂 Funny</b><span class="muted">Silly and surprising</span></button>
+      <button class="genre" data-g="horror" type="button" aria-pressed="false"><b>👻 Spooky</b><span class="muted">A little creepy</span></button>
+      <button class="genre" data-g="suspense" type="button" aria-pressed="false"><b>🕵️ Mystery</b><span class="muted">A puzzle with a twist</span></button>
+    </div>
+    <p class="choicelabel">3. Watch the AI work</p>
+    <div class="row"><button class="btn" id="run" type="button">▶ Run the demo</button>
+       <a class="btn ghost" href="create.html">Skip, make my own</a></div>
+    <p class="muted" style="margin-bottom:0">The real thing takes 6 to 10 minutes. The demo is sped up to a few seconds.</p>
+  </div>
+  <section class="card" id="progress-card" hidden><h2>Progress</h2>
+    <div id="progress"><div class="bar"><i></i></div><ul class="steps"></ul></div></section>
+  <section class="card" id="result-card" hidden><div id="result"></div>
+    <div class="after"><p style="margin-top:0"><b>Like it?</b> <span class="muted">Go outside, take 5 to 10 photos and make your own.</span></p>
+      <div class="row"><a class="btn" href="create.html">Make my own tale →</a><a class="btn ghost" href="gallery.html">See the gallery</a></div></div>
+  </section>
+</main>
+<footer><div class="wrap">
+  <span>🌳 Touch Grass Tales</span><a href="setup.html">Setup</a><a href="gallery.html">Gallery</a>
+</div></footer>
+<script type="module">
+import { DEMO } from "./js/demo-data.js";
+import { renderProgress } from "./js/progress.js";
+import { renderStory } from "./js/story-view.js";
+
+const LABELS = ["Preparing photos", "Spotting objects in your photos", "Plotting the tale", "Writing the story", "Planning illustrations", "Painting illustrations", "Binding the book"];
+const $ = (id) => document.getElementById(id);
+let genre = "funny", timer = null;
+document.querySelectorAll(".genre").forEach((b) => b.addEventListener("click", () => {
+  genre = b.dataset.g;
+  document.querySelectorAll(".genre").forEach((x) => {
+    x.classList.toggle("on", x === b);
+    x.setAttribute("aria-pressed", x === b);
+  });
+}));
+
+$("run").onclick = () => {
+  clearTimeout(timer);
+  $("run").disabled = true;
+  $("result-card").hidden = true;
+  $("progress-card").hidden = false;
+  let i = 0, shownRetry = false;
+  const tick = () => {
+    const steps = LABELS.map((label, n) => ({ label, attempts: 1, error: null, ms: n < i ? 800 + n * 330 : null, status: n < i ? "done" : n === i ? "running" : "pending" }));
+    // Show the retry behaviour once so people see the step recover.
+    if (i === 3 && !shownRetry) {
+      shownRetry = true;
+      steps[3].status = "retrying";
+      steps[3].error = "The AI is busy. Trying again…";
+      renderProgress($("progress"), { steps });
+      timer = setTimeout(tick, 1400);
+      return;
+    }
+    renderProgress($("progress"), { steps });
+    if (i >= LABELS.length) {
+      renderStory($("result"), DEMO[genre]);
+      $("result-card").hidden = false;
+      $("result-card").scrollIntoView({ behavior: "smooth" });
+      $("run").disabled = false;
+      return;
+    }
+    i++;
+    timer = setTimeout(tick, 700);
+  };
+  tick();
+};
+</script>
+</body>
+</html>

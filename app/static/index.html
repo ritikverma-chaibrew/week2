@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Touch Grass Tales</title>
+<meta name="description" content="Go outside, snap 5 to 10 photos, and Gemma AI turns them into an illustrated children's story, poem or comic.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🌳%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="logo" href="index.html">🌳 Touch Grass Tales</a>
+  <nav class="links" aria-label="Main">
+    <a class="btn sm cta" href="create.html">Create a story</a><a class="l" href="#how">How it works</a><a class="l" href="gallery.html">Gallery</a><a class="l" href="setup.html">Setup</a>
+  </nav>
+</div></header>
+<main class="wrap">
+  <section class="hero2">
+    <div>
+      <span class="eyebrow">Photos in, picture book out</span>
+      <h1>Close the laptop.<br><span class="grass">Go touch grass.</span></h1>
+      <p class="lead">Take a short walk and photograph 5 to 10 random things. Our AI turns them into an <b>illustrated story, rhyming poem or comic</b>, using your own photos as the pictures.</p>
+      <div class="row"><a class="btn lg" href="create.html">Start a walk →</a><a class="btn ghost" href="demo.html">▶ Try the demo first</a></div>
+      <p class="muted fine">Free to use with a free Google key, or run it on your own computer. The demo needs no setup.</p>
+    </div>
+    <div class="flow" aria-label="Example: three photos become a story">
+      <p class="lbl">Your photos</p>
+      <div class="polas" aria-hidden="true">
+        <div class="pola"><i>🪑</i>park bench</div>
+        <div class="pola"><i>💡</i>lamp post</div>
+        <div class="pola"><i>🐦</i>pigeon</div>
+      </div>
+      <p class="arrow">↓ Gemma AI writes ↓</p>
+      <div class="page">
+        <span class="badge funny">Funny</span> <span style="font-size:.8rem;color:#666">story</span>
+        <h3>Gus and the Big Bench</h3>
+        <p>Gus the pigeon had a big plan. He wanted the best bench in the park. But the lamp post had other ideas…</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>What is Touch Grass Tales?</h2>
+    <p class="lead">A small, friendly reason to go outside. Whatever you photograph (a bench, a cat, a strange sign) becomes the cast of a short tale. Everything is written in <b>simple English</b>: short sentences and easy words, so young readers and English learners can enjoy it too.</p>
+    <div class="who" aria-label="Who it is for">
+      <span>👧 Kids and parents</span><span>📚 Beginner English learners</span><span>🏫 Teachers</span><span>💻 Anyone who needs a screen break</span>
+    </div>
+  </section>
+
+  <section class="section" id="how">
+    <span class="eyebrow">How it works</span>
+    <h2>Four steps, about 10 minutes</h2>
+    <ol class="howsteps">
+      <li><b>Connect the AI once</b><p>Paste a free Google AI Studio key (2 minutes), or use LM Studio on your computer. <a href="setup.html">How?</a></p></li>
+      <li><b>Go outside</b><p>Get a fun mission, like "find something that looks like a face", and take 5 to 10 photos.</p></li>
+      <li><b>Pick a mood and format</b><p>Funny, spooky or mystery. Then a story, a poem or a comic.</p></li>
+      <li><b>Read your tale</b><p>Watch live progress while the AI writes. Read it like a book or as slides, and publish it to the gallery if you like.</p></li>
+    </ol>
+  </section>
+
+  <section class="section">
+    <span class="eyebrow">Same photos, three ways</span>
+    <h2>Choose what you get</h2>
+    <div class="formats">
+      <div class="card"><div class="ic">📖</div><h3>Story</h3><p class="muted">Six short scenes, each with one of your photos as the picture.</p></div>
+      <div class="card"><div class="ic">📝</div><h3>Poem</h3><p class="muted">Four rhyming verses that are fun to read out loud.</p></div>
+      <div class="card"><div class="ic">💬</div><h3>Comic</h3><p class="muted">Six panels with captions and speech bubbles over your photos.</p></div>
+    </div>
+    <div class="moods"><span class="muted">Moods:</span>
+      <span class="badge funny">😂 Funny</span><span class="badge horror">👻 Spooky</span><span class="badge suspense">🕵️ Mystery</span>
+      <span class="muted">(spooky never means gory)</span></div>
+  </section>
+
+  <section class="section card">
+    <h2>What you need</h2>
+    <ul class="need">
+      <li><span>📱</span><span><b>A phone or computer</b> <span class="muted">to take or upload photos.</span></span></li>
+      <li><span>🔑</span><span><b>A free Google AI Studio key</b> <span class="muted">or the LM Studio app on your computer. The <a href="setup.html">setup guide</a> shows you how.</span></span></li>
+      <li><span>⏳</span><span><b>About 6 to 10 minutes</b> <span class="muted">while the AI writes. Keep the tab open; you can do other things.</span></span></li>
+    </ul>
+  </section>
+
+  <section class="section">
+    <h2>Questions</h2>
+    <div class="card faq">
+      <details open><summary>Is it free?</summary><p>Yes. Google AI Studio gives you a free key with Gemma models. You can also use LM Studio, which runs fully on your own computer.</p></details>
+      <details open><summary>Is my API key safe?</summary><p>Your key is kept in your browser's local storage for 5 hours only and is then deleted automatically. It is sent with each request but the server never stores or logs it. You can press <b>Forget</b> at any time.</p></details>
+      <details open><summary>What happens to my photos?</summary><p>Photos are shrunk, their hidden location data (EXIF) is removed, and they are deleted from the server after 24 hours. When you press <b>Publish</b>, your tale and small copies of its photos are saved to your browser's local storage, so you can find it again in the gallery on this device. It is never uploaded for others to see.</p></details>
+      <details open><summary>Why does it take a few minutes?</summary><p>The AI works in small, careful steps: it looks at each photo, plans the plot, writes each part, then proofreads. Doing it carefully, one piece at a time, takes a few minutes.</p></details>
+      <details open><summary>Can I try it without a key?</summary><p>Yes. The <a href="demo.html">demo</a> shows a pre-made walk with no setup, and the <a href="gallery.html">gallery</a> has sample tales.</p></details>
+    </div>
+  </section>
+
+  <section class="section card ctaband">
+    <h2>Ready for a walk?</h2>
+    <p class="muted">Your next story is just outside the door.</p>
+    <div class="row"><a class="btn lg" href="create.html">Start a walk →</a><a class="btn ghost" href="gallery.html">Browse the gallery</a></div>
+  </section>
+</main>
+<footer><div class="wrap">
+  <span>🌳 Touch Grass Tales</span><a href="setup.html">Setup</a><a href="gallery.html">Gallery</a><span>Built for Hacktoberfest · Gemma + FastAPI + MongoDB</span>
+</div></footer>
+</body>
+</html>

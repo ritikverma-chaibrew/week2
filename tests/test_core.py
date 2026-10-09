@@ -188,6 +188,7 @@ def test_estimates():
 
     story = llm_step_names(5, "story")
     assert len(story) == 5 + 1 + 6 + 1 + 3 and story[5] == "outline" and story[-4] == "critique"
+    # one LLM call at a time: each of the 5 photos is its own call
     assert total_seconds(story, 30) == (len(story) - 1) * 30 + 12  # every call is shorter than the pause
     assert total_seconds(story, 0) == 8 * 5 + 18 + 12 * 6 + 14 + 12 * 3
     assert len(llm_step_names(5, "poem")) == 5 + 1 + 4 + 1 + 2
@@ -198,15 +199,14 @@ def test_estimates():
     assert total_seconds(llm_step_names(5, "poem"), 0, kind="poem") < total_seconds(story, 0)
 
 
-def test_user_chosen_pause_overrides_default():
+def test_no_pause_after_success_and_30s_backoff_after_failure():
     from app.providers.base import ProviderConfig
 
-    assert ProviderConfig(kind="aistudio").call_gap == 30 and ProviderConfig(kind="lmstudio").call_gap == 0
-    assert ProviderConfig(kind="aistudio", gap_override=10).call_gap == 10
-    assert ProviderConfig(kind="aistudio", gap_override=10).retry_delay == 10
-    assert ProviderConfig(kind="aistudio", gap_override=999).call_gap == 120  # clamped
-    assert ProviderConfig(kind="lmstudio", gap_override=15).call_gap == 15
-    assert ProviderConfig(kind="aistudio", gap_override=0).retry_delay == 5
+    assert ProviderConfig(kind="aistudio").call_gap == 0 and ProviderConfig(kind="lmstudio").call_gap == 0
+    assert ProviderConfig(kind="aistudio").retry_delay == 30  # Google doesn't say how long: 30 s, 60 s, 90 s
+    assert ProviderConfig(kind="aistudio", gap_override=10).retry_delay == 30  # independent of any gap
+    assert ProviderConfig(kind="lmstudio").retry_delay == 5  # local: no rate limits
+    assert ProviderConfig(kind="aistudio", gap_override=999).call_gap == 120  # an explicit gap is still clamped
 
 
 # ---------------------------------------------------------------- content: story, poem, comic
@@ -448,3 +448,68 @@ def test_only_ai_studio_and_lm_studio_are_offered():
     assert KINDS == ("aistudio", "lmstudio")
     assert get_cfg("openrouter", "", "", "", "").kind == "aistudio"  # unknown providers fall back to AI Studio
 
+
+def test_one_llm_call_at_a_time_in_order():
+    from app.pipeline.estimate import VISION_PARALLEL
+
+    live, peak, order = [0], [0], []
+
+    def build(name):
+        async def f(ctx, doc, provider, cfg):
+            live[0] += 1
+            peak[0] = max(peak[0], live[0])
+            await asyncio.sleep(0.05)
+            live[0] -= 1
+            order.append(name)
+            return {"title": "t"} if name == "finalize" else {"text": name}
+
+        return f
+
+    async def save(_):
+        pass
+
+    doc = {"_id": "s", "genre": "funny", "kind": "story", "status": "pending", "steps": new_steps(6, "story")}
+    funcs = {s["name"]: build(s["name"]) for s in doc["steps"]}
+    t0 = time.monotonic()
+    asyncio.run(execute(doc, None, None, funcs, save))
+    assert doc["status"] == "done" and peak[0] == VISION_PARALLEL == 1  # never two calls at once
+    assert order.index("outline") > max(order.index(f"vision_{i}") for i in range(1, 7))  # plan waits for all photos
+    assert order[order.index("outline"):][:3] == ["outline", "part_1", "part_2"]  # writing stays in order
+
+
+def test_progress_shows_finished_parts_until_the_tale_is_done():
+    from app.pipeline.runner import public
+
+    doc = {"_id": "s", "genre": "funny", "kind": "story", "status": "running", "steps": new_steps(5, "story")}
+    steps = {s["name"]: s for s in doc["steps"]}
+    assert public(doc)["preview"] == {"found": [None] * 5, "title": "", "parts": []}  # nothing checked yet
+    steps["vision_1"].update(status="done", output={"objects": ["bench", "pigeon"]})
+    assert public(doc)["preview"]["found"] == [["bench", "pigeon"], None, None, None, None]
+    steps["outline"].update(status="done", output={"title": "Gus and the Big Bench", "beats": ["a"]})
+    steps["part_1"].update(status="done", output={"text": "Gus had a plan."})
+    steps["part_2"].update(status="running")
+    snap = public(doc)["preview"]
+    assert snap["title"] == "Gus and the Big Bench" and snap["parts"] == [{"text": "Gus had a plan."}]
+    doc["status"] = "done"
+    assert public(doc)["preview"] is None  # the finished result replaces the preview
+
+
+def test_successful_calls_go_back_to_back():
+    from app.pipeline.throttle import ThrottledProvider
+
+    class Inner:
+        async def generate(self, *a, **k):
+            return "ok"
+
+    async def scenario():
+        async def emit(d):
+            pass
+
+        doc = {"llm": {"calls": 0, "waiting_until": None}}
+        tp = ThrottledProvider(Inner(), 0, doc, emit)
+        t0 = time.monotonic()
+        for _ in range(5):
+            await tp.generate("x")
+        assert time.monotonic() - t0 < 0.2 and doc["llm"]["calls"] == 5
+
+    asyncio.run(scenario())

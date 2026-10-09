@@ -18,7 +18,7 @@ const MIN_PHOTOS = 5, MAX_PHOTOS = 10;
 const KIND_NAME = { story: "story", poem: "poem", comic: "comic" };
 const $ = (id) => document.getElementById(id);
 let genre = "funny", kind = "story", storyId = null, es = null;
-let running = false, photoCount = 0, lastResult = null;
+let running = false, photoCount = 0, lastResult = null, photoIds = [];
 
 mountSettings($("settings"));
 
@@ -76,7 +76,9 @@ function renderEstimate() {
     ? `⏱ About ${fmtDuration(e.seconds)} for ${e.n} photos` +
       // Hidden from the UI: the number of AI calls. Kept for reference:
       // ` (${e.calls} AI calls)` +
-      (e.gap ? `, with a ${e.gap}s pause between AI steps to respect free limits` : "") + ". Keep this tab open while it works."
+      // Hidden from the UI: the pause between AI calls. Kept for reference:
+      // (e.gap ? `, with a ${e.gap}s pause between AI steps to respect free limits` : "") +
+      ". Keep this tab open while it works."
     : "";
 }
 window.addEventListener("tg:settings", refreshEstimate);
@@ -193,6 +195,102 @@ function startCooldown() {
   renderRetry();
 }
 
+/** Photo check panel: each photo's thumbnail with what is happening to it right now, then what was found in it.
+ *  Shown while the photos are being looked at (one at a time), then folded into a one-line summary. */
+const CHECKING = ["Reading the photo…", "Checking items in the photo…", "Naming what it sees…"];
+let actSig = "";
+const chipList = (items) => {
+  const box = document.createElement("div");
+  box.className = "chips";
+  items.forEach((t) => box.append(Object.assign(document.createElement("span"), { textContent: t })));
+  return box;
+};
+function photoStatus(step, found) {
+  if (step.status === "done") return found?.length ? null : "Nothing clear found";
+  if (step.status === "running") return "rot";
+  if (step.status === "retrying") return "The AI is busy. Trying again…";
+  if (step.status === "failed") return step.error || "Couldn't check this photo";
+  return "Waiting…";
+}
+function renderActivity(st) {
+  const steps = (st.steps || []).filter((s) => s.name?.startsWith("vision_"));
+  if (!steps.length || st.status === "done") return ($("activity").hidden = true);
+  $("activity").hidden = false;
+  const found = st.preview?.found || [];
+  const allDone = steps.every((s) => s.status === "done" || s.status === "skipped");
+  const sig = JSON.stringify([steps.map((s) => s.status), found]);
+  if (sig === actSig) return; // nothing new: don't reload the thumbnails
+  actSig = sig;
+  const doneCount = steps.filter((s) => s.status === "done").length;
+  $("act-title").textContent = allDone ? `✓ Checked all ${steps.length} photos` : `🔎 Checking your photos (${doneCount} of ${steps.length} done)`;
+  $("act-photos").hidden = allDone;
+  $("act-summary").hidden = !allDone;
+  if (allDone) {
+    const all = [...new Set(found.flat().filter(Boolean))];
+    $("act-summary").replaceChildren(
+      Object.assign(document.createElement("span"), { className: "muted", textContent: `Found ${all.length} things to build your tale from:` }),
+      chipList(all.slice(0, 16))
+    );
+    return;
+  }
+  $("act-photos").replaceChildren(
+    ...steps.map((s, i) => {
+      const card = document.createElement("div");
+      card.className = "act-card s-" + s.status;
+      if (photoIds[i]) card.append(Object.assign(document.createElement("img"), { src: imageUrl(photoIds[i], "thumb"), alt: `Photo ${i + 1}` }));
+      const label = document.createElement("div");
+      label.className = "act-label";
+      label.innerHTML = `<span class="dot">${s.status === "done" ? "✓" : s.status === "failed" ? "!" : ""}</span><b>Photo ${i + 1}</b>`;
+      card.append(label);
+      const msg = photoStatus(s, found[i]);
+      if (msg === "rot") card.append(Object.assign(document.createElement("div"), { className: "act-msg rot", textContent: CHECKING[0] }));
+      else if (msg) card.append(Object.assign(document.createElement("div"), { className: "act-msg", textContent: msg }));
+      else card.append(chipList(found[i]));
+      return card;
+    })
+  );
+}
+// Cycle the "checking" message so a photo that takes a few seconds visibly keeps working.
+setInterval(() => {
+  const t = CHECKING[Math.floor(Date.now() / 1600) % CHECKING.length];
+  document.querySelectorAll("#act-photos .rot").forEach((el) => (el.textContent = t));
+}, 400);
+
+/** Sneak peek: show each scene, verse or panel as soon as it is written (the server sends the parts done so far). */
+let peekShown = -1;
+function renderPeek(st) {
+  const pv = st.preview;
+  const n = pv?.parts?.length ?? -1;
+  $("peek").hidden = !pv || (!n && !pv.title) || st.status === "done";
+  if (!pv || n === peekShown) return; // nothing new: keep what the reader is looking at
+  peekShown = n;
+  $("peek-title").textContent = pv.title || "";
+  const kind = st.kind || "story";
+  $("peek-parts").replaceChildren(
+    ...pv.parts.map((p, i) => {
+      const box = document.createElement("div");
+      box.className = "peek-part" + (i === n - 1 ? " fresh" : "");
+      if (kind === "comic") {
+        const cap = document.createElement("div");
+        cap.className = "pcap";
+        cap.textContent = `Panel ${i + 1}${p.caption ? ": " + p.caption : ""}`;
+        box.append(cap);
+        (p.speech || []).forEach((s) => {
+          const b = document.createElement("div");
+          b.className = "bubble";
+          if (s.who) b.append(Object.assign(document.createElement("b"), { textContent: s.who }));
+          b.append(document.createTextNode(s.text));
+          box.append(b);
+        });
+      } else {
+        box.append(Object.assign(document.createElement("p"), { className: kind === "poem" ? "verse" : "", textContent: p.text || "" }));
+      }
+      return box;
+    })
+  );
+  $("peek").scrollTop = $("peek").scrollHeight; // keep the newest part in view
+}
+
 function busy(on) {
   running = on;
   renderMake();
@@ -204,6 +302,8 @@ function watch(id) {
   es.onmessage = (ev) => {
     const st = JSON.parse(ev.data);
     renderProgress($("progress"), st);
+    renderActivity(st);
+    renderPeek(st);
     renderRetry(st);
     if (st.status === "failed" || st.status === "done") recordUsage(st);
     if (st.status === "failed") {
@@ -233,12 +333,23 @@ $("go").onclick = async () => {
   endCooldown();
   lastState = null;
   renderRetry();
+  peekShown = -1;
+  $("peek").hidden = true;
+  actSig = "";
+  photoIds = [];
+  $("act-title").textContent = "🔎 Preparing your photos";
+  $("act-upload").textContent = "⏳ Uploading your photos and removing hidden data (EXIF, like location)…";
+  $("act-photos").replaceChildren();
+  $("act-summary").hidden = true;
+  $("activity").hidden = false;
   busy(true);
   try {
     $("progress-card").hidden = false;
     $("progress-card").scrollIntoView({ behavior: "smooth", block: "start" });
     renderProgress($("progress"), { steps: [{ label: "Uploading photos", status: "running", attempts: 1 }] });
     const up = await uploadPhotos(dz.blobs());
+    photoIds = up.image_ids;
+    $("act-upload").textContent = "✓ Photos uploaded and resized. Hidden data (EXIF, like location) removed.";
     ({ id: storyId } = await createStory(up.image_ids, genre, false, kind)); // private until the author presses Publish
     watch(storyId);
   } catch (e) {

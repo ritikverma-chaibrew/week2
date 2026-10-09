@@ -31,7 +31,7 @@ export const isRecommendedLocal = (id) => /gemma/i.test(id);
 const DEFAULTS = { provider: "aistudio", lmUrl: "http://localhost:1234/v1", models: {}, gaps: {} };
 
 // Pause between AI calls (seconds). AI Studio has per-minute limits; local models don't.
-export const DEFAULT_GAP = { aistudio: 30, lmstudio: 0 };
+export const DEFAULT_GAP = { aistudio: 0, lmstudio: 0 }; // no pause after a successful call; the server backs off after failures
 export const MAX_GAP = 120;
 export const gapFor = (provider) => {
   const g = getSettings().gaps?.[provider];

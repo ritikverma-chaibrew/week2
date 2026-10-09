@@ -10,7 +10,9 @@ export class ApiError extends Error {
 /** Provider, key and chosen models travel as headers on every call; the server never stores them. */
 export function providerHeaders() {
   const s = getSettings();
-  const h = { "X-Provider": s.provider, "X-Call-Gap": String(gapFor(s.provider)) };
+  const h = { "X-Provider": s.provider };
+  // The pause slider is hidden, so the server's pacing applies (no wait after a successful call). Kept for reference:
+  // h["X-Call-Gap"] = String(gapFor(s.provider));
   if (s.provider === "lmstudio") h["X-Lm-Url"] = s.lmUrl;
   if (s.provider === "aistudio") h["X-Api-Key"] = getKey(s.provider)?.key || "";
   const m = {};

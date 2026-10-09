@@ -5,16 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Setup · Touch Grass Tales</title>
 <meta name="description" content="Connect Touch Grass Tales to Gemma with a free Google AI Studio key or LM Studio.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🌱%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🌳%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
+<body> 
 <header class="nav"><div class="wrap">
-  <a class="logo" href="index.html">🌱 Touch Grass Tales</a>
+  <a class="logo" href="index.html">🌳 Touch Grass Tales</a>
   <nav class="links" aria-label="Main">
-    <a class="l" href="index.html#how">How it works</a><a class="l" href="demo.html">Demo</a><a class="l" href="gallery.html">Gallery</a><a class="l" href="setup.html" aria-current="page">Setup</a>
+    <a class="btn sm cta" href="create.html">Make a tale</a><a class="l" href="index.html#how">How it works</a><a class="l" href="gallery.html">Gallery</a><a class="l" href="setup.html" aria-current="page">Setup</a>
   </nav>
-  <a class="btn sm cta" href="create.html">Create</a>
 </div></header>
 <main class="wrap">
   <div class="pagehead">
@@ -23,10 +22,10 @@
   </div>
 
   <div class="pick">
-    <a class="card" href="#aistudio">
-      <h3>☁️ Google AI Studio</h3>
+    <a class="card" href="#aistudio">   
+      <h3>☁️ Google AI Studio</h3> 
       <p class="muted">Free key from Google. Works on any phone or computer.</p>
-      <ul><li>Nothing to install</li><li>Key kept in your browser for 5 hours</li><li>About 6 to 10 minutes per tale</li></ul>
+      <ul><li>Nothing to install</li><li>Key kept in your browser's local storage for 5 hours</li><li>About 2 to 4 minutes per tale</li></ul>
     </a>
     <a class="card" href="#lmstudio">
       <span class="tag alt">For tinkerers</span>
@@ -38,13 +37,13 @@
 
   <section class="card" id="aistudio">
     <h2>☁️ Google AI Studio</h2>
-    <ol class="guide">
-      <li>Open <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>, sign in with Google, and press <b>Create API key</b>. Copy the key (it starts with <code>AIza</code>).</li>
+    <ol class="guide"> 
+      <li>Open <a href="https://aistudio.google.com/api-keys" target="_blank" rel="noopener">aistudio.google.com/api-keys</a>, sign in with Google, and press <b>Create API key</b>. Copy the key (it starts with <code>AIza</code>).</li>
       <li>In the <a href="#connect">Connect &amp; test</a> box below, choose <b>Google AI Studio</b>, paste the key and press <b>Save key</b>.</li>
       <li>Press <b>Connect</b>. When you see <b>● Connected</b>, you're done. <a href="create.html">Create your first tale →</a></li>
     </ol>
-    <details class="more" open><summary>Good to know</summary>
-      <p class="muted">Your key is kept in this browser for 5 hours, then deleted automatically. The server never stores it. Free keys have rate limits, so the app pauses about 30 seconds between AI steps and retries if Google says "too many requests". A tale takes about 6 to 10 minutes. The AI never writes everything in one go: it looks at each photo, plans, writes one short part at a time and then proofreads, which keeps the writing focused.</p>
+    <details class="more" open><summary>Good to know</summary> 
+      <p class="muted">Your key is kept in your browser's local storage for 5 hours, then deleted automatically. The server never stores it. If Google is busy, the app tries again automatically. A tale takes about 2 to 4 minutes. The AI never writes everything in one go: it looks at each photo, plans, writes one short part at a time and then proofreads, which keeps the writing focused.</p>
       <!-- Number of AI calls hidden from the UI. Kept for reference:
       <p class="muted">Each photo is one small AI call. Then a story adds one plot call, six short scene calls and a review with up to 3 fixes; a poem adds the plot, four stanza calls and a review with up to 2 fixes; a comic adds the plot and six panel calls. That is about 12 to 21 calls.</p>
       -->
@@ -66,9 +65,9 @@
 
   <section class="card"><h2>Something not working?</h2>
     <div class="faq">
-      <details open><summary>"rejected your API key"</summary><p>The key is wrong or expired. Create a new one at aistudio.google.com/apikey and paste it again.</p></details>
-      <details open><summary>"Key disconnected"</summary><p>Keys are forgotten after 5 hours for your safety. Paste your key again and press Connect.</p></details>
-      <details open><summary>Rate limit or daily limit</summary><p>Google's free tier has limits. Wait a minute and press Retry. The app already pauses between AI calls to stay within the limits.</p></details>
+      <details open><summary>"rejected your API key"</summary><p>The key is wrong or expired. Create a new one at aistudio.google.com/api-keys and paste it again.</p></details>
+      <details open><summary>"Key disconnected"</summary><p>Keys are removed from your browser's local storage after 5 hours for your safety. Paste your key again and press Connect.</p></details>
+      <details open><summary>Rate limit or daily limit</summary><p>Google's free tier has limits. Wait a minute and press Retry.</p></details>
       <details open><summary>"LM Studio server not reachable"</summary><p>Start the server in LM Studio's Developer tab and check the URL (usually <code>http://localhost:1234/v1</code>).</p></details>
       <details open><summary>"can't read images"</summary><p>The "Look at each photo" task needs a model with vision (image) support.</p></details>
     </div>
@@ -101,7 +100,7 @@ uvicorn app.main:app --reload</pre></li>
   </section>
 </main>
 <footer><div class="wrap">
-  <span>🌱 Touch Grass Tales</span><span>Your API key stays in this browser for 5 hours and is never stored on the server.</span>
+  <span>🌳 Touch Grass Tales</span><span>Your API key is kept in your browser's local storage for 5 hours only and is never stored on the server.</span>
 </div></footer>
 <script type="module">
   import { mountSettings } from "./js/settings.js";

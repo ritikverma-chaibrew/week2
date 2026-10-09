@@ -4,18 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Demo · Touch Grass Tales</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🌱%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🌳%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 <header class="nav"><div class="wrap">
-  <a class="logo" href="index.html">🌱 Touch Grass Tales</a>
+  <a class="logo" href="index.html">🌳 Touch Grass Tales</a>
   <nav class="links" aria-label="Main">
-    <a class="l" href="index.html#how">How it works</a><a class="l" href="demo.html" aria-current="page">Demo</a><a class="l" href="gallery.html">Gallery</a><a class="l" href="setup.html">Setup</a>
+    <a class="btn sm cta" href="create.html">Make a tale</a><a class="l" href="index.html#how">How it works</a><a class="l" href="gallery.html">Gallery</a><a class="l" href="setup.html">Setup</a>
   </nav>
-  <a class="btn sm cta" href="create.html">Create</a>
 </div></header>
-<main class="wrap">
+<main class="wrap"> 
   <div class="pagehead">
     <h1>See it in action</h1>
     <p class="lead">This replays a pre-made walk so you can see what you get. No key, no photos, nothing is sent anywhere.</p>
@@ -34,7 +33,7 @@
     <p class="choicelabel">3. Watch the AI work</p>
     <div class="row"><button class="btn" id="run" type="button">▶ Run the demo</button>
        <a class="btn ghost" href="create.html">Skip, make my own</a></div>
-    <p class="muted" style="margin-bottom:0">The real thing takes 6 to 10 minutes. The demo is sped up to a few seconds.</p>
+    <p class="muted" style="margin-bottom:0">The real thing takes 2 to 4 minutes. The demo is sped up to a few seconds.</p>
   </div>
   <section class="card" id="progress-card" hidden><h2>Progress</h2>
     <div id="progress"><div class="bar"><i></i></div><ul class="steps"></ul></div></section>
@@ -44,7 +43,7 @@
   </section>
 </main>
 <footer><div class="wrap">
-  <span>🌱 Touch Grass Tales</span><a href="setup.html">Setup</a><a href="demo.html">Demo</a><a href="gallery.html">Gallery</a>
+  <span>🌳 Touch Grass Tales</span><a href="setup.html">Setup</a><a href="gallery.html">Gallery</a>
 </div></footer>
 <script type="module">
 import { DEMO } from "./js/demo-data.js";
@@ -74,7 +73,7 @@ $("run").onclick = () => {
     if (i === 3 && !shownRetry) {
       shownRetry = true;
       steps[3].status = "retrying";
-      steps[3].error = "Rate limit hit. Waiting…";
+      steps[3].error = "The AI is busy. Trying again…";
       renderProgress($("progress"), { steps });
       timer = setTimeout(tick, 1400);
       return;

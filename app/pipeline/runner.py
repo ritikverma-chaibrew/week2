@@ -2,7 +2,7 @@ import asyncio
 import logging
 import time
 
-from .estimate import NON_LLM, eta_seconds, total_seconds
+from .estimate import NON_LLM, VISION_PARALLEL, eta_seconds, total_seconds
 from .throttle import ThrottledProvider
 
 from .. import db
@@ -42,8 +42,29 @@ def llm_state(doc: dict) -> dict:
     }
 
 
+def preview(doc: dict) -> dict | None:
+    """What has been worked out so far, so the page can show progress while the rest is still running: the items
+    found in each photo (None until that photo is checked), the title, and the parts written (scenes, stanzas or
+    panels). Gone once the tale is done: the finished result replaces it."""
+    if doc.get("status") == "done":
+        return None
+    out = {s["name"]: s.get("output") or {} for s in doc["steps"] if s["status"] == "done"}
+    n_photos = sum(1 for s in doc["steps"] if s["name"].startswith("vision_"))
+    found = [
+        [str(o)[:40] for o in out[f"vision_{i + 1}"].get("objects", [])][:6] if f"vision_{i + 1}" in out else None
+        for i in range(n_photos)
+    ]
+    parts = [
+        {k: o[k] for k in ("text", "caption", "speech") if k in o}
+        for name, o in out.items()
+        if name.startswith("part_")
+    ]
+    title = (out.get("outline") or {}).get("title", "")
+    return {"found": found, "title": str(title)[:120], "parts": parts}
+
+
 def public(doc: dict) -> dict:
-    """What the browser sees: step status, never raw step outputs or anything secret."""
+    """What the browser sees: step status and a preview of the finished parts, never anything secret."""
     return {
         "llm": llm_state(doc),
         "id": doc["_id"],
@@ -52,6 +73,7 @@ def public(doc: dict) -> dict:
         "kind": doc.get("kind", "story"),
         "error": doc.get("error"),
         "result": doc.get("result"),
+        "preview": preview(doc),
         "steps": [
             {k: s.get(k) for k in ("name", "label", "status", "attempts", "error", "ms")} for s in doc["steps"]
         ],
@@ -66,52 +88,79 @@ async def _persist_and_publish(doc: dict) -> None:
     publish(doc["_id"], public(doc))
 
 
+async def _run_step(step, ctx, doc, provider, cfg, funcs, save, sleep) -> bool:
+    """One step with retries. Returns False when it failed for good (and the tale with it)."""
+    step["error"] = None
+    started = time.perf_counter()
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        step["attempts"], step["status"] = attempt, "running"
+        await save(doc)
+        try:
+            step["output"] = await funcs[step["name"]](ctx, doc, provider, cfg)
+            step["status"] = "done"
+            step["ms"] = int((time.perf_counter() - started) * 1000)
+            ctx[step["name"]] = step["output"]
+            await save(doc)
+            return True
+        except ProviderError as e:
+            err = e
+        except Exception:  # noqa: BLE001
+            log.exception("step %s crashed", step["name"])
+            err = ProviderError("internal", "Something went wrong on our side.")
+        step["error"] = err.message
+        if err.retryable and attempt < MAX_ATTEMPTS:
+            step["status"] = "retrying"
+            await save(doc)
+            # Back off only after a failure: attempt-number x the base wait (30 s, 60 s, 90 s on AI Studio).
+            # A successful call needs no wait, so the next one goes straight away.
+            delay = attempt * getattr(cfg, "retry_delay", 30)
+            llm = doc.get("llm")
+            if llm is not None:
+                llm["waiting_until"] = time.time() + delay
+                await save(doc)
+            await sleep(delay)
+            if llm is not None:
+                llm["waiting_until"] = None
+            continue
+        if step["name"] in OPTIONAL:  # e.g. proofreading: ship the story as written
+            step["status"] = "skipped"
+            await save(doc)
+            return True
+        step["status"], doc["status"], doc["error"] = "failed", "failed", err.as_dict()
+        await save(doc)
+        return False
+    return False
+
+
 async def execute(doc, provider, cfg, funcs, save, sleep=asyncio.sleep) -> None:
-    """Run pending steps in order. Done steps are skipped, so a retry resumes where it failed."""
+    """Run pending steps in order, one LLM call at a time. Done steps are skipped, so a retry resumes where it
+    failed. Photos don't depend on each other, so VISION_PARALLEL > 1 would look at several at once."""
     ctx = {s["name"]: s["output"] for s in doc["steps"] if s["status"] == "done"}
     doc["status"], doc["error"] = "running", None
     await save(doc)
-    for step in doc["steps"]:
-        if step["status"] == "done":
-            continue
-        step["error"] = None
-        started = time.perf_counter()
-        for attempt in range(1, MAX_ATTEMPTS + 1):
-            step["attempts"], step["status"] = attempt, "running"
-            await save(doc)
-            try:
-                step["output"] = await funcs[step["name"]](ctx, doc, provider, cfg)
-                step["status"] = "done"
-                step["ms"] = int((time.perf_counter() - started) * 1000)
-                ctx[step["name"]] = step["output"]
-                break
-            except ProviderError as e:
-                err = e
-            except Exception:  # noqa: BLE001
-                log.exception("step %s crashed", step["name"])
-                err = ProviderError("internal", "Something went wrong on our side.")
-            step["error"] = err.message
-            if err.retryable and attempt < MAX_ATTEMPTS:
-                step["status"] = "retrying"
-                await save(doc)
-                # Back off: wait attempt-number x the normal pause (1x, 2x, 3x...). After a success the next
-                # call goes back to the normal pause (the throttle only knows the plain gap).
-                delay = attempt * getattr(cfg, "retry_delay", 30)
-                llm = doc.get("llm")
-                if llm is not None:
-                    llm["waiting_until"] = time.time() + delay
-                    await save(doc)
-                await sleep(delay)
-                if llm is not None:
-                    llm["waiting_until"] = None
+    steps, i = doc["steps"], 0
+    while i < len(steps):
+        if steps[i]["name"].startswith("vision_"):
+            group = []
+            while i < len(steps) and steps[i]["name"].startswith("vision_"):
+                if steps[i]["status"] != "done":
+                    group.append(steps[i])
+                i += 1
+            gate = asyncio.Semaphore(VISION_PARALLEL)
+
+            async def one(step):
+                async with gate:
+                    return await _run_step(step, ctx, doc, provider, cfg, funcs, save, sleep)
+
+            ok = all(await asyncio.gather(*(one(s) for s in group)))
+        else:
+            step = steps[i]
+            i += 1
+            if step["status"] == "done":
                 continue
-            if step["name"] in OPTIONAL:  # e.g. proofreading: ship the story as written
-                step["status"] = "skipped"
-                break
-            step["status"], doc["status"], doc["error"] = "failed", "failed", err.as_dict()
-            await save(doc)
+            ok = await _run_step(step, ctx, doc, provider, cfg, funcs, save, sleep)
+        if not ok:
             return
-        await save(doc)
     doc["status"], doc["result"] = "done", ctx["finalize"]
     await save(doc)
 

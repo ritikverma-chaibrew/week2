@@ -8,7 +8,7 @@ const KEYED = {
   aistudio: { label: "Google AI Studio API key", link: "https://aistudio.google.com/apikey", hint: "AIza…" },
 };
 const INTRO = {
-  aistudio: `Use your own free Google AI Studio key with Gemma 4. Works in any browser, nothing to install. The key stays in this browser for ${TTL_LABEL}.`,
+  aistudio: `Use your own free Google AI Studio key with Gemma 4. Works in any browser, nothing to install. The key is kept in your browser's local storage for ${TTL_LABEL} only.`,
   lmstudio: "Fully local and free, no key. Models come from the LM Studio app. The app server must run on the same computer as LM Studio.",
 };
 // How each task is shown in the model picker.
@@ -40,7 +40,7 @@ export function mountSettings(el) {
         <label class="f" for="key"><span id="keylabel"></span> <a id="keylink" target="_blank" rel="noopener">(get one free)</a></label>
         <div class="row"><input id="key" type="password" autocomplete="off" style="flex:1;min-width:200px">
           <button class="btn sm" id="save" type="button">Save key</button></div>
-        <p class="muted" id="exp-none" style="margin:6px 0 0">The key is kept in this browser for ${TTL_LABEL} only and never stored on the server.</p>
+        <p class="muted" id="exp-none" style="margin:6px 0 0">The key is kept in your browser's local storage for ${TTL_LABEL} only and never stored on the server.</p>
       </div>
       <div id="keycard" class="keycard" hidden>
         <div class="row" style="justify-content:space-between">
@@ -103,7 +103,7 @@ export function mountSettings(el) {
     }
     return (RECOMMENDED_MODELS[p] || []).map((m) => ({
       id: m.id,
-      name: `${m.name} (${m.note})${m.id === DEFAULT_MODELS[p]?.[role] ? " ★" : ""}`,
+      name: `${m.name} (${m.note})`,
     }));
   }
 
@@ -112,7 +112,7 @@ export function mountSettings(el) {
     $("mnote").textContent =
       p === "lmstudio"
         ? lmModels === null ? "Loading the Gemma models loaded in LM Studio…" : lmModels.length ? "Gemma models loaded in LM Studio." : "No Gemma model is loaded in LM Studio yet. Auto is used."
-        : "★ marks the recommended model for each task. It is already selected.";
+        : "The recommended model for each task is already selected.";
     $("load").hidden = p !== "lmstudio";
     $("models").innerHTML = ROLES.map(([role]) => {
       const t = TASKS[role], val = modelFor(p, role);
@@ -158,7 +158,7 @@ export function mountSettings(el) {
     const st = getKeyStatus(p);
     if (!k && st.connected) {
       // The key was purged after its lifetime: show that it got disconnected.
-      setKeyStatus(p, { connected: false, reason: `The key expired after ${TTL_LABEL} and was removed from this browser.` });
+      setKeyStatus(p, { connected: false, reason: `The key expired after ${TTL_LABEL} and was removed from your browser's local storage.` });
     }
     const st2 = getKeyStatus(p);
     $("keycard").hidden = !k;

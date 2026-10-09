@@ -1,4 +1,4 @@
-# Touch Grass Tales 🌱
+# Touch Grass Tales 🌳
 
 Go outside, photograph 5 to 10 random things, and Gemma AI turns them into a children's **story**, a rhyming **poem** or a **comic strip** (funny, spooky or mystery), illustrated with your own photos. Everything is written in simple words: short sentences, no idioms, about CEFR A2, so young readers and beginner English learners can follow it.
 
@@ -13,12 +13,14 @@ Go outside, photograph 5 to 10 random things, and Gemma AI turns them into a chi
 No key yet? `/demo.html` replays a pre-made walk with no setup, and `/gallery.html` has three sample tales.
 
 ## Pages
+Header: **Create a story · How it works · Gallery · Setup**.
+
 | Page | What it is for |
 | --- | --- |
 | `/` | What the site does, an example, how it works, FAQ |
 | `/create.html` | The 5 numbered steps above. The Make button lists what is still missing (key, photos) |
 | `/setup.html` | Choose AI Studio or LM Studio, connect and test, troubleshooting |
-| `/demo.html` | A sped-up canned run, no key needed |
+| `/demo.html` | A sped-up canned run, no key needed (linked from the home page only, not the header or footer) |
 | `/gallery.html` | Your published tales (from local storage), then sample tales |
 
 ## Project structure
@@ -57,10 +59,10 @@ Open http://localhost:8000. For MongoDB Atlas, set `MONGODB_URI=mongodb+srv://..
 ## How it works
 - **Stack:** FastAPI + uvicorn + MongoDB (motor). The frontend is plain HTML/CSS/JS in `app/static/`, served by FastAPI, so there is one thing to deploy.
 - **AI providers:** only two, **Google AI Studio** (your own key) and **LM Studio** (local). Any other `X-Provider` value falls back to AI Studio.
-- **Models:** Gemma 4, a different one per task: 26B-A4B for reading each photo and planning; 31B for writing and proofreading. Under **Advanced settings** each task has a select box that offers only recommended models: on AI Studio the two Gemma 4 models (the default marked ★), on LM Studio only the Gemma models loaded in the app (or Auto: the first Gemma loaded).
+- **Models:** Gemma 4, a different one per task: 26B-A4B for reading each photo and planning; 31B for writing and proofreading. Under **Advanced settings** each task has a select box that offers only recommended models: on AI Studio the two Gemma 4 models (the recommended one preselected), on LM Studio only the Gemma models loaded in the app (or Auto: the first Gemma loaded).
 - **Small calls, never one long reply.** One small photo (384px) per call; a plot call; then a story is six ~170-word scenes, a poem is four 4-line stanzas, a comic is six panels (caption + speech bubbles); then an editor call reviews the whole piece and up to 3 weak parts are rewritten. A readability check always rewrites scenes that are too hard.
 - **Pipeline:** `vision_1…n → outline → part_1…n → critique → revise_1…k → illustrate → finalize` (comics skip the review). Each step is saved in MongoDB and progress streams over SSE. Transient errors (429, 5xx, timeouts, bad JSON) retry up to 3 times, waiting 1x, 2x, 3x the pause. If a step still fails, the UI shows why and **Retry** resumes from that step without redoing earlier ones.
-- **Pacing:** on AI Studio calls start at least 30 s apart to respect free-tier limits. The pause slider is hidden in the UI but kept in `app/static/js/settings.js`.
+- **Pacing:** on AI Studio calls start at least 30 s apart to respect free-tier limits. The pause is never mentioned in the UI: the slider, the estimate text and the live "pausing…" message are hidden, with their code kept but commented out in `js/settings.js`, `js/app.js` and `js/progress.js`.
 - **AI-call counts are not shown in the UI.** The server still tracks them (`llm.calls` in the story state) and the browser still counts them per key; the display code is kept but commented out in `js/progress.js`, `js/settings.js`, `js/app.js`, `create.html` and `setup.html`.
 
 ## Privacy

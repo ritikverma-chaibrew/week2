@@ -76,7 +76,9 @@ function renderEstimate() {
     ? `⏱ About ${fmtDuration(e.seconds)} for ${e.n} photos` +
       // Hidden from the UI: the number of AI calls. Kept for reference:
       // ` (${e.calls} AI calls)` +
-      (e.gap ? `, with a ${e.gap}s pause between AI steps to respect free limits` : "") + ". Keep this tab open while it works."
+      // Hidden from the UI: the pause between AI calls. Kept for reference:
+      // (e.gap ? `, with a ${e.gap}s pause between AI steps to respect free limits` : "") +
+      ". Keep this tab open while it works."
     : "";
 }
 window.addEventListener("tg:settings", refreshEstimate);

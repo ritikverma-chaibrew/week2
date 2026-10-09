@@ -8,7 +8,7 @@ export function fmtDuration(s) {
   return r ? `${m} min ${r}s` : `${m} min`;
 }
 
-/** Estimated time left and the pause between calls. Counts down locally between updates.
+/** Estimated time left. Counts down locally between updates. The pause between AI calls is not shown in the UI.
  *  The live "AI calls made" counter is hidden from the UI; its code is kept below, commented out. */
 function renderLlm(root, llm, status) {
   const eta = root.querySelector("#llm-eta");
@@ -22,11 +22,12 @@ function renderLlm(root, llm, status) {
     // root.querySelector("#llm-planned").textContent = llm.planned;
     const left = status === "done" ? 0 : Math.max(0, llm.eta - el);
     eta.textContent = status === "done" ? "done" : status === "failed" ? "stopped" : `~${fmtDuration(left)} left`;
-    const w = Math.max(0, llm.waiting - el);
-    root.querySelector("#llm-wait").textContent =
-      status === "running" || status === "pending"
-        ? w > 0 ? `Pausing ${fmtDuration(w)} before the next AI call (rate limits)…` : llm.gap ? `${llm.gap}s pause between AI calls to stay within rate limits.` : ""
-        : "";
+    // Hidden from the UI: the pause before the next AI call. Kept for reference:
+    // const w = Math.max(0, llm.waiting - el);
+    // root.querySelector("#llm-wait").textContent =
+    //   status === "running" || status === "pending"
+    //     ? w > 0 ? `Pausing ${fmtDuration(w)} before the next AI call (rate limits)…` : llm.gap ? `${llm.gap}s pause between AI calls to stay within rate limits.` : ""
+    //     : "";
   };
   paint();
   if (status === "running" || status === "pending") tick = setInterval(paint, 1000);
